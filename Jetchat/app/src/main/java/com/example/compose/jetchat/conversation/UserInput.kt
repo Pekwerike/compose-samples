@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFrom
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -220,7 +221,6 @@ private fun SelectorExpanded(
 fun FunctionalityNotAvailablePanel() {
     AnimatedVisibility(
         visibleState = remember { MutableTransitionState(false).apply { targetState = true } },
-        // Remove if https://issuetracker.google.com/190816173 is fixed
         enter = expandHorizontally() + fadeIn(),
         exit = shrinkHorizontally() + fadeOut()
     ) {
@@ -342,7 +342,7 @@ private fun InputSelectorButton(
     }
     IconButton(
         onClick = onClick,
-        modifier = backgroundModifier
+        modifier = Modifier.size(56.dp).then(backgroundModifier)
     ) {
         val tint = if (selected) {
             MaterialTheme.colorScheme.onSecondary
@@ -483,7 +483,8 @@ fun ExtendedSelectorInnerButton(
     modifier: Modifier = Modifier
 ) {
     val colors = ButtonDefaults.buttonColors(
-        containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+        containerColor = if (selected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+        else Color.Transparent,
         disabledContainerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface,
         disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.74f)
@@ -493,7 +494,6 @@ fun ExtendedSelectorInnerButton(
         modifier = modifier
             .padding(8.dp)
             .height(36.dp),
-        enabled = selected,
         colors = colors,
         contentPadding = PaddingValues(0.dp)
     ) {

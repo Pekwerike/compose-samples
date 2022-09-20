@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.compose.jetchat.conversation
 
 import androidx.compose.foundation.Image
@@ -25,11 +27,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -37,10 +46,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -49,6 +58,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -75,10 +85,6 @@ import com.example.compose.jetchat.R
 import com.example.compose.jetchat.components.JetchatAppBar
 import com.example.compose.jetchat.data.exampleUiState
 import com.example.compose.jetchat.theme.JetchatTheme
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.navigationBarsWithImePadding
-import com.google.accompanist.insets.rememberInsetsPaddingValues
-import com.google.accompanist.insets.statusBarsPadding
 import kotlinx.coroutines.launch
 
 /**
@@ -101,7 +107,8 @@ fun ConversationContent(
     val timeNow = stringResource(id = R.string.now)
 
     val scrollState = rememberLazyListState()
-    val scrollBehavior = remember { TopAppBarDefaults.pinnedScrollBehavior() }
+    val topBarState = rememberTopAppBarState()
+    val scrollBehavior = remember { TopAppBarDefaults.pinnedScrollBehavior(topBarState) }
     val scope = rememberCoroutineScope()
 
     Surface(modifier = modifier) {
@@ -128,9 +135,11 @@ fun ConversationContent(
                             scrollState.scrollToItem(0)
                         }
                     },
-                    // Use navigationBarsWithImePadding(), to move the input panel above both the
+                    // Use navigationBarsPadding() imePadding() and , to move the input panel above both the
                     // navigation bar, and on-screen keyboard (IME)
-                    modifier = Modifier.navigationBarsWithImePadding(),
+                    modifier = Modifier
+                        .navigationBarsPadding()
+                        .imePadding(),
                 )
             }
             // Channel name bar floats above the messages
@@ -221,10 +230,8 @@ fun Messages(
             // Add content padding so that the content can be scrolled (y-axis)
             // below the status bar + app bar
             // TODO: Get height from somewhere
-            contentPadding = rememberInsetsPaddingValues(
-                insets = LocalWindowInsets.current.statusBars,
-                additionalTop = 90.dp
-            ),
+            contentPadding =
+            WindowInsets.statusBars.add(WindowInsets(top = 90.dp)).asPaddingValues(),
             modifier = Modifier
                 .testTag(ConversationTestTag)
                 .fillMaxSize()
@@ -401,7 +408,6 @@ fun DayHeader(dayString: String) {
 
 @Composable
 private fun RowScope.DayHeaderLine() {
-    // TODO (M3): No Divider, replace when available
     Divider(
         modifier = Modifier
             .weight(1f)
